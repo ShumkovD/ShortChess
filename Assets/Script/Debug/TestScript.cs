@@ -15,6 +15,6 @@ public class TestScript : MonoBehaviour
 
     void ActionCKey()
     {
-        SceneLoadClass.Instance.SceneLoadAdditive("ボード");
+        SceneLoadClass.Instance.SceneLoadAdditive("ボード", true);
     }
 }
