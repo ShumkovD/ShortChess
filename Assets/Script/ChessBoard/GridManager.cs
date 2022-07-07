@@ -4,7 +4,19 @@ using UnityEngine;
 
 public class GridManager : Singleton<GridManager>
 {
-    [SerializeField] int width, height;
+    private void Awake()
+    {
+        if (this != Instance)
+        {
+            Destroy(this);
+            return;
+        }
+    }
+
+    [Header("BoardPrperty")]
+    [SerializeField] int width;
+    [SerializeField] int height;
+    public float boardScale;
     [SerializeField] GameObject whiteBoard;
     [SerializeField] GameObject blackBoard;
 
@@ -40,7 +52,8 @@ public class GridManager : Singleton<GridManager>
             }
         }
 
-        mainCam.transform.position = new Vector3((float)width / 2 - 0.5f, (float)height / 2 - 0.5f, -10f);
+        transform.localScale = new Vector3(boardScale, boardScale, 1);
+        mainCam.transform.position = new Vector3(((float)width / 2 - 0.5f) * boardScale, ((float)height / 2 - 0.5f) * boardScale, -10f);
 
         return true;
     }

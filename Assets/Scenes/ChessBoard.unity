@@ -154,8 +154,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   width: 6
   height: 6
+  boardScale: 1.5
   whiteBoard: {fileID: 4039106640439717943, guid: f1ba51efea565d1409a77ed9b874ebc1, type: 3}
   blackBoard: {fileID: 8474127584225012411, guid: c5c3ceb4385b98b4ea672d01a8011e58, type: 3}
+  boardList: []
 --- !u!4 &1206957493
 Transform:
   m_ObjectHideFlags: 0
