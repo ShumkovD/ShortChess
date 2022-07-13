@@ -4,12 +4,35 @@ using UnityEngine;
 
 public class TestScript : MonoBehaviour
 {
+    void Start()
+    {
+        SoundManager.Instance.Play("BGM");
+    }
     // Update is called once per frame
     void Update()
     {
         if(Input.GetKeyDown(KeyCode.C))
         {
             ActionCKey();
+        }
+
+        if(Input.GetMouseButtonDown(0))
+        {
+            SoundManager.Instance.Play("ƒNƒŠƒbƒN");
+        }
+
+        if(Input.GetKeyDown(KeyCode.M))
+        {
+            bool isMute = SoundManager.Instance.settings.mute;
+            if(isMute)
+            {
+                SoundManager.Instance.settings.mute = false;
+            }
+            else
+            {
+                SoundManager.Instance.settings.mute = true;
+            }
+            SoundManager.Instance.SwitchMute();
         }
     }
 
