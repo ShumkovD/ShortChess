@@ -46,7 +46,7 @@ public class SceneLoadClass : Singleton<SceneLoadClass>
     }
 
     //シーンの加算
-    public void SceneLoadAdditive(string code,bool isLoad)
+    public void SceneLoadAdditive(string code)
     {
         if(sceneDictionary.TryGetValue(code, out var sceneData))
         {
@@ -56,10 +56,7 @@ public class SceneLoadClass : Singleton<SceneLoadClass>
             }
             Debug.LogWarning(sceneData.sceneName);
 
-            async = SceneManager.LoadSceneAsync(sceneData.sceneName, LoadSceneMode.Additive);
-
-            if (isLoad)
-                ActivateLoadingScene();
+            ActivateLoadingScene(sceneData.sceneName);
         }
         else
         {
@@ -106,33 +103,38 @@ public class SceneLoadClass : Singleton<SceneLoadClass>
 
     void LoadInit()
     {
-        Instantiate(nowLoadingObj);
-        nowLoadingObj.SetActive(false);
+        //Instantiate(nowLoadingObj);
         progress = nowLoadingObj.GetComponentInChildren<Slider>();
         loadText = nowLoadingObj.GetComponentInChildren<Text>();
         loadText.text = "NowLoading...";
+        nowLoadingObj.SetActive(false);
     }
-    void ActivateLoadingScene()
+    void ActivateLoadingScene(string name)
     {
         //ロード画面を表示
         nowLoadingObj.SetActive(true);
         Debug.LogWarning("NowLoading");
+        Debug.LogWarning(nowLoadingObj.activeSelf);
 
-        StartCoroutine(LoadNextScene());
+        StartCoroutine(LoadNextScene(name));
     }
 
-    IEnumerator LoadNextScene()
+    IEnumerator LoadNextScene(string name)
     {
+        async = SceneManager.LoadSceneAsync(name, LoadSceneMode.Additive);
+
         while(!async.isDone)
         {
             var progressVal = Mathf.Clamp01(async.progress / 0.9f);
             progress.value = progressVal;
-            yield return new WaitForSeconds(1.0f);
+            yield return null;
         }
 
         if (async.isDone)
         {
+            yield return new WaitForSeconds(0.2f);
             nowLoadingObj.SetActive(false);
+            progress.value = 0f;
             yield break;
         }
     }

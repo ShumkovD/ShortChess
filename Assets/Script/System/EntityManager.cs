@@ -20,7 +20,7 @@ public class EntityManager : Singleton<EntityManager>
     {
         for (int i = 0; i < startScene.Length; ++i)
         {
-            SceneLoadClass.instance.SceneLoadAdditive(startScene[i], false);
+            SceneLoadClass.instance.SceneLoadAdditive(startScene[i]);
         }
     }
 
