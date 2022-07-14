@@ -16,6 +16,12 @@ public class TestScript : MonoBehaviour
             ActionCKey();
         }
 
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            SceneLoadClass.Instance.SceneLoadAdditive("test");
+        }
+
+
         if (Input.GetMouseButtonDown(0))
         {
             SoundManager.Instance.Play("クリック");
@@ -38,6 +44,6 @@ public class TestScript : MonoBehaviour
 
     void ActionCKey()
     {
-        SceneLoadClass.Instance.SceneLoadAdditive("ボード", true);
+        SceneLoadClass.Instance.SceneLoadAdditive("ボード");
     }
 }
