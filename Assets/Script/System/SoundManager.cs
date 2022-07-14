@@ -1,9 +1,10 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Pool;
 
 /// <summary>
-/// �T�E���h�Ǘ��N���X
+/// サウンド管理クラス
 /// </summary>
 public class SoundManager : Singleton<SoundManager>
 {
@@ -14,10 +15,31 @@ public class SoundManager : Singleton<SoundManager>
             Destroy(this);
             return;
         }
+
+        foreach (var soundData in soundDatas)
+        {
+            soundDictionary.Add(soundData.name, soundData);
+        }
     }
 
     /// <summary>
-    /// �����Ǘ��N���X
+    /// ボリューム
+    /// </summary>
+    [System.Serializable]
+    public class SoundSettings
+    {
+        public float defVol;
+        public bool mute = false;
+
+        public void Reset()
+        {
+            defVol = 1.0f;
+            mute = false;
+        }
+    }
+
+    /// <summary>
+    /// 音源のデータ
     /// </summary>
     #region SoundData
     [System.Serializable]
@@ -25,57 +47,111 @@ public class SoundManager : Singleton<SoundManager>
     {
         public string name;
         public AudioClip clip;
-        public float playedTime;
+        public float vol = 1.0f;
+        public bool loop = false;
     }
     #endregion
 
+    public SoundSettings settings = new SoundSettings();
 
-    List<AudioSource> audioList = new List<AudioSource>();
+    //AudioSource
+    const int audioChannel = 20;
+    AudioSource[] audioList = new AudioSource[audioChannel];
+
+    //Data
     [SerializeField] SoundData[] soundDatas;
     Dictionary<string, SoundData> soundDictionary = new Dictionary<string, SoundData>();
-    [SerializeField] float playableDist;
+
+    //キュー
+    Queue<SoundData> soundQueue = new Queue<SoundData>();
 
     private void Start()
     {
-        foreach(var soundData in soundDatas)
+        for (int i = 0; i < audioChannel; ++i)
         {
-            soundDictionary.Add(soundData.name, soundData);
-            audioList.Add(gameObject.AddComponent<AudioSource>());
+            audioList[i] = gameObject.AddComponent<AudioSource>();
+            audioList[i].volume = settings.defVol;
+        }
+
+        SwitchMute();
+    }
+
+    private void Update()
+    {
+        //キューに音源があるとき再生
+        int count = soundQueue.Count;
+        if (count != 0)
+        {
+            SoundData data = soundQueue.Dequeue();
+            Play(data.clip, data.vol, data.loop);
         }
     }
 
+    //未使用のソースを取得
     AudioSource GetUnActiveSource()
     {
-        for (int i = 0; i < audioList.Count; ++i)
+        for (int i = 0; i < audioList.Length; ++i)
         {
-            if(!audioList[i].isPlaying)
+            if (!audioList[i].isPlaying)
             {
                 return audioList[i];
             }
         }
-        //���g�p�̃\�[�X�Ȃ�
+        //なし
         return null;
     }
 
-    public void Play(AudioClip clip)
+    //再生処理
+    public void Play(AudioClip clip, float vol, bool loop)
     {
         var source = GetUnActiveSource();
-        if(source == null) { return; }
+        if (source == null) { return; }
         source.clip = clip;
+        source.volume = vol;
+        source.loop = loop;
         source.Play();
     }
 
     public void Play(string name)
     {
-        if(soundDictionary.TryGetValue(name,out var soundData))
+        //stringをもとにdataを検索
+        if (soundDictionary.TryGetValue(name, out var soundData))
         {
-            if(Time.realtimeSinceStartup - soundData.playedTime < playableDist) { return; }
-            soundData.playedTime = Time.realtimeSinceStartup;
-            Play(soundData.clip);
+            //キューに追加
+            if (!soundQueue.Contains(soundData)) { soundQueue.Enqueue(soundData); }
         }
         else
         {
-            Debug.LogWarning($"���������o�^�ł�:{name}");
+            Debug.LogWarning($"音源が未登録です:{name}");
+        }
+    }
+
+    //ミュートの切り替え
+    public void SwitchMute()
+    {
+        foreach (var src in audioList)
+        {
+            src.mute = settings.mute;
+        }
+
+        if (settings.mute)
+        {
+            Debug.LogWarning("ミュートON");
+        }
+        else
+        {
+            Debug.LogWarning("ミュートOFF");
+        }
+    }
+
+    //再生停止
+    public void StopAudio()
+    {
+        soundQueue.Clear();
+        foreach (var src in audioList)
+        {
+            src.Stop();
+            src.clip = null;
         }
     }
 }
