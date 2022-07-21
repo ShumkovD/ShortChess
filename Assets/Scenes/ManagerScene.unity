@@ -182,8 +182,8 @@ MonoBehaviour:
   - codeName: "\u30DC\u30FC\u30C9"
     sceneName: ChessBoard
     index: 3
-  - codeName: test
-    sceneName: Test
+  - codeName: Game
+    sceneName: GameScene
     index: 4
   nowLoadingObj: {fileID: 39005803}
   progress: {fileID: 1461954414}
@@ -201,7 +201,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1682962580963144710, guid: 923af9932feea8448b390c6250bc47a3, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4225224897079757841, guid: 923af9932feea8448b390c6250bc47a3, type: 3}
       propertyPath: m_Pivot.x
@@ -289,7 +289,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5881597335211264069, guid: 923af9932feea8448b390c6250bc47a3, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 1
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7440997866580661908, guid: 923af9932feea8448b390c6250bc47a3, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: -120
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 923af9932feea8448b390c6250bc47a3, type: 3}
