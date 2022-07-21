@@ -71,20 +71,11 @@ public class SceneLoadClass : Singleton<SceneLoadClass>
     }
 
     //ÉVÅ[ÉìÇÃîjä¸
-    public void UnLoadScene(string code, bool unloadAssets)
+    public void UnLoadScene(string code)
     {
         if (sceneDictionary.TryGetValue(code, out var sceneData))
         {
             SceneManager.UnloadSceneAsync(sceneData.sceneName);
-
-            if(unloadAssets)
-            {
-                Resources.UnloadUnusedAssets();
-            }
-            else
-            {
-                Debug.LogWarning("UnUsedAssets didn't Unload");
-            }
         }
         else
         {
@@ -133,6 +124,7 @@ public class SceneLoadClass : Singleton<SceneLoadClass>
         if (async.isDone)
         {
             yield return new WaitForSeconds(0.2f);
+            UI_Manager.instance.SetActiveScene(name);
             nowLoadingObj.SetActive(false);
             progress.value = 0f;
             yield break;
