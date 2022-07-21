@@ -4,15 +4,6 @@ using UnityEngine;
 
 public class Pawn : ChessPiece
 {
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+    //1手目、2マス前か1マス前へ
+    //駒をとるとき、2マス斜め
 }

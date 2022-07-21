@@ -4,15 +4,5 @@ using UnityEngine;
 
 public class Queen : ChessPiece
 {
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+    //壁か味方のコマにぶつかるまで縦、横、斜め何処までも
 }
