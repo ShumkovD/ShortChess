@@ -4,15 +4,6 @@ using UnityEngine;
 
 public class King : ChessPiece
 {
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+    //味方のコマがない場合
+    //周り1マス進められる
 }
