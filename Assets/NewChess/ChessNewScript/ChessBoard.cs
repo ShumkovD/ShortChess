@@ -10,6 +10,7 @@ public class ChessBoard : MonoBehaviour
     private Camera currentCamera;
 
     [Header("Sprites")]
+    public Vector2 offsetForChessPieces;
     public Sprite whiteTile;
     public Sprite blackTile;
 
@@ -19,9 +20,23 @@ public class ChessBoard : MonoBehaviour
 
     Vector2Int hitPosition;
 
+    [Header("Prefabs&Materials")]
+    [SerializeField] GameObject[] prefabW;
+    [SerializeField] GameObject[] prefabB;
+    private GameObject[][] prefabs;
+
+    [Header("Logic")]
+
+    private ChessPiece[,] chessPieces;
+
+
+
     private void Awake()
     {
+        prefabs = new GameObject[2][] { prefabW, prefabB};
         GenerateAllTiles(1, tileCountX, tileCountY);
+        SpawnAllPieces();
+        PositionAllPieces();
     }
 
     private void Update()
@@ -99,6 +114,51 @@ public class ChessBoard : MonoBehaviour
         tileObject.AddComponent<BoxCollider2D>();
 
         return tileObject;
+    }
+
+    private void SpawnAllPieces()
+    {
+        chessPieces = new ChessPiece[tileCountX, tileCountY];
+        int whiteTeam = 0, blackTeam = 1;
+        //下のコードは「仮」！
+        chessPieces[0, 0] = SpawnSinglePiece(ChessPieceType.Rook, whiteTeam);
+        chessPieces[1, 0] = SpawnSinglePiece(ChessPieceType.Bishop, whiteTeam);
+        chessPieces[2, 0] = SpawnSinglePiece(ChessPieceType.Queen, whiteTeam);
+        chessPieces[3, 0] = SpawnSinglePiece(ChessPieceType.King, whiteTeam);
+        chessPieces[4, 0] = SpawnSinglePiece(ChessPieceType.Bishop, whiteTeam);
+        chessPieces[5, 0] = SpawnSinglePiece(ChessPieceType.Rook, whiteTeam);
+
+        chessPieces[0, 5] = SpawnSinglePiece(ChessPieceType.Rook, blackTeam);
+        chessPieces[1, 5] = SpawnSinglePiece(ChessPieceType.Bishop, blackTeam);
+        chessPieces[2, 5] = SpawnSinglePiece(ChessPieceType.Queen, blackTeam);
+        chessPieces[3, 5] = SpawnSinglePiece(ChessPieceType.King, blackTeam);
+        chessPieces[4, 5] = SpawnSinglePiece(ChessPieceType.Bishop, blackTeam);
+        chessPieces[5, 5] = SpawnSinglePiece(ChessPieceType.Rook, blackTeam);
+    }
+    private ChessPiece SpawnSinglePiece(ChessPieceType type, int team)
+    {
+        ChessPiece cp = Instantiate(prefabs[team][(int)type - 1], transform).GetComponent<ChessPiece>();
+
+        cp.type = type;
+        cp.team = team;
+        return cp; 
+
+    }
+
+    private void PositionAllPieces()
+    {
+        for (int x = 0; x < tileCountX; x++)
+            for (int y = 0; y < tileCountY; y++)
+                if (chessPieces[x, y] != null)
+                    PositionSinglePiece(x, y, true);
+    }
+
+    private void PositionSinglePiece(int x, int y, bool force = false)
+    {
+        chessPieces[x, y].currentX = x;
+        chessPieces[x, y].currentY = y;
+        chessPieces[x, y].GetComponent<SpriteRenderer>().sortingOrder = 1;
+        chessPieces[x, y].transform.position = new Vector3(-tileCountX * 0.5f + x + offsetForChessPieces.x, -tileCountY * 0.5f + y + offsetForChessPieces.y, 0);
     }
 
     //検索

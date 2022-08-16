@@ -1,7 +1,7 @@
+
 using UnityEngine;
 
-
-public class ChessPiece : MonoBehaviour
+public class Queen : ChessPiece
 {
     // Start is called before the first frame update
     void Start()
