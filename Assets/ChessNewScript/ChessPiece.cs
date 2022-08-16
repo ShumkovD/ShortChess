@@ -1,8 +1,7 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-public class Bishop : ChessPiece
+
+public class ChessPiece : MonoBehaviour
 {
     // Start is called before the first frame update
     void Start()
