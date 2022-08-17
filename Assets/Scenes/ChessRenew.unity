@@ -270,8 +270,24 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 60359f95143b9c74fa04971f3a44ac74, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  offsetForChessPieces: {x: 0, y: 0}
+  deadPieceSize: 0.3
   whiteTile: {fileID: 21300000, guid: b7c7bc951e4a56943b0c0e4f35e9ddc3, type: 3}
-  blackTile: {fileID: 21300000, guid: f2cf746177caf684c9540211205bf092, type: 3}
+  blackTile: {fileID: 21300000, guid: 7f267cdf1b25c644e94253acb4c299e0, type: 3}
+  prefabW:
+  - {fileID: 1211455858334861588, guid: 1b2a72bb1fe19bd4ea4a7b81be5096f2, type: 3}
+  - {fileID: 6007460832211898088, guid: 1dbf6460d389f7f479acd4267729ddec, type: 3}
+  - {fileID: 677261795419185800, guid: 026cdf16c2655944cb24eef0a76c245a, type: 3}
+  - {fileID: 8120907172803206378, guid: 17e851e831d2d924993a398d19dd7c21, type: 3}
+  - {fileID: 6942003445490916966, guid: d9f8b12a16555c44cb433d6aa3e8dc7d, type: 3}
+  - {fileID: 8532560414271697597, guid: 03dcb48b8bebc0c4db52642fd197c832, type: 3}
+  prefabB:
+  - {fileID: 980225682239892119, guid: e1f48551a22afbc42b1456a5a54da83d, type: 3}
+  - {fileID: 7909152396830156245, guid: a1516c33aee4a314d8c9e3757b0498df, type: 3}
+  - {fileID: 2568924753631301312, guid: 718192d02449d084fb1fe39873fbe438, type: 3}
+  - {fileID: 4341626842528217996, guid: 144e5b624df2fd54eae7a8f78802319a, type: 3}
+  - {fileID: 6863982738581971817, guid: e74d58148b92a6a49a1b463a2702a5b9, type: 3}
+  - {fileID: 6867768629888350832, guid: b1a650e13bd744c4d94df1722d28146e, type: 3}
 --- !u!4 &1286309528
 Transform:
   m_ObjectHideFlags: 0

@@ -1,17 +1,60 @@
-
+using System.Collections.Generic;
 using UnityEngine;
 
 public class Rook : ChessPiece
 {
-    // Start is called before the first frame update
-    void Start()
+    public override List<Vector2Int> GetAvailableMoves(ref ChessPiece[,] board, int tileCountX, int tileCountY)
     {
-        
-    }
+        List<Vector2Int> returnValue = new List<Vector2Int>();
 
-    // Update is called once per frame
-    void Update()
-    {
-        
+        //â∫
+        for(int i = currentY-1;i>=0;i--)
+        {
+            if (board[currentX, i] == null)
+                returnValue.Add(new Vector2Int(currentX, i));
+            else
+            {
+                if(board[currentX, i].team != team)
+                    returnValue.Add(new Vector2Int(currentX, i));
+                break;
+            }
+        }
+        //è„
+        for (int i = currentY + 1; i < tileCountY; i++)
+        {
+            if (board[currentX, i] == null)
+                returnValue.Add(new Vector2Int(currentX, i));
+            else
+            {
+                if (board[currentX, i].team != team)
+                    returnValue.Add(new Vector2Int(currentX, i));
+                break;
+            }
+        }
+        //âE
+        for (int i = currentX + 1; i < tileCountX; i++)
+        {
+            if (board[i, currentY] == null)
+                returnValue.Add(new Vector2Int(i, currentY));
+            else
+            {
+                if (board[i, currentY].team != team)
+                    returnValue.Add(new Vector2Int(i, currentY));
+                break;
+            }
+        }
+        //ç∂
+        for (int i = currentX - 1; i >= 0; i--)
+        {
+            if (board[i, currentY] == null)
+                returnValue.Add(new Vector2Int(i, currentY));
+            else
+            {
+                if (board[i, currentY].team != team)
+                    returnValue.Add(new Vector2Int(i, currentY));
+                break;
+            }
+        }
+        return returnValue;
     }
 }
