@@ -24,4 +24,17 @@ public class Pawn : ChessPiece
         }
         return returnValue;
     }
+
+    public override SpecialMove GetSpecialMoves(ref ChessPiece[,] chessPieces, ref List<Vector2Int[]> moveList, ref List<Vector2Int> availableMoves)
+    {
+        int direction = (team == 0) ? 1 : -1;
+        if ((team == 0 && currentY == 4) || (team == 1 && currentY == 1))
+        {
+            Debug.Log("Called Promotion");
+            return SpecialMove.Promotion;
+        }
+
+        return SpecialMove.None;
+    }
+
 }

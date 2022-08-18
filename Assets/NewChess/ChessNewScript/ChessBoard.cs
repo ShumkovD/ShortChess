@@ -2,6 +2,12 @@ using UnityEngine;
 using System;
 using System.Collections.Generic;
 
+public enum SpecialMove
+{
+    None = 0,
+    Promotion = 1
+}
+
 public class ChessBoard : MonoBehaviour
 {
     private const int tileCountX = 6;
@@ -39,6 +45,8 @@ public class ChessBoard : MonoBehaviour
     private List<ChessPiece> deadBlacks = new List<ChessPiece>();
 
     private bool isWhiteTurn;
+
+    private SpecialMove specialMove;
 
     private void Awake()
     {
@@ -93,6 +101,8 @@ public class ChessBoard : MonoBehaviour
                         currentlyDragging = chessPieces[hitPosition.x,hitPosition.y];
 
                         availableMoves = currentlyDragging.GetAvailableMoves(ref chessPieces, tileCountX, tileCountY);
+
+                        specialMove = currentlyDragging.GetSpecialMoves(ref chessPieces, ref moveList, ref availableMoves);
 
                         PreventCheck();
 
@@ -182,6 +192,8 @@ public class ChessBoard : MonoBehaviour
         isWhiteTurn = !isWhiteTurn;
 
         moveList.Add(new Vector2Int[] { previousPosition, new Vector2Int(x, y) });
+
+        ProcessSpecialMove();
 
         if (CheckForCheckMate())
             CheckMate(cp.team);
@@ -276,6 +288,30 @@ public class ChessBoard : MonoBehaviour
         availableMoves.Clear();
     }
 
+    private void ProcessSpecialMove()
+    {
+        if(specialMove == SpecialMove.Promotion)
+        {
+            Debug.Log("Do Promotion");
+            Vector2Int[] lastMove = moveList[moveList.Count - 1];
+            ChessPiece targetPawn = chessPieces[lastMove[1].x, lastMove[1].y];
+            if(targetPawn.type == ChessPieceType.Pawn)
+            {
+                if((targetPawn.team== 0 && lastMove[1].y == 5) || (targetPawn.team == 1 && lastMove[1].y == 0))
+                {
+                    ChessPiece newQueen = SpawnSinglePiece(ChessPieceType.Queen, 0);
+                    newQueen.transform.position = chessPieces[lastMove[1].x, lastMove[1].y].transform.position;
+                    Destroy(chessPieces[lastMove[1].x, lastMove[1].y].gameObject);
+                    chessPieces[lastMove[1].x, lastMove[1].y] = newQueen;
+                    PositionSinglePiece(lastMove[1].x, lastMove[1].y);
+                }
+
+              
+            }
+        }
+
+    }
+
     private bool ContainsValidMove(ref List<Vector2Int> moves, Vector2 pos)
     {
         for (int i = 0; i < moves.Count; i++)
@@ -305,7 +341,8 @@ public class ChessBoard : MonoBehaviour
             }
 
         currentlyDragging = null;
-        availableMoves = new List<Vector2Int>();
+        
+        moveList.Clear();
 
         for(int x = 0;x<deadWhites.Count;x++)
             Destroy(deadWhites[x].gameObject);
@@ -317,6 +354,8 @@ public class ChessBoard : MonoBehaviour
 
     
         RemoveHighlightTiles();
+        availableMoves.Clear();
+
         SpawnAllPieces();
         PositionAllPieces();
     }
