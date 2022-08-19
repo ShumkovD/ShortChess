@@ -22,14 +22,15 @@ public static class NetUtility
         switch (opCode)
         {
             case OpCode.KeepAlive:  msg = new NetKeepAlive(stream); break; 
-            //case OpCode.Welcome:  msg = new NetWelcome(stream); break; 
-            //case OpCode.StartGame:  msg = new NetStartGame(stream); break; 
-            //case OpCode.MakeMove:  msg = new NetMakeMove(stream); break; 
-            //case OpCode.Rematch:  msg = new NetRematch(stream); break;
+            case OpCode.Welcome:  msg = new NetWelcome(stream); break; 
+            case OpCode.StartGame:  msg = new NetStartGame(stream); break; 
+            case OpCode.MakeMove:  msg = new NetMakeMove(stream); break; 
+            case OpCode.Rematch:  msg = new NetRematch(stream); break;
             default:
                     break;
                 
         }
+
         if (server != null)
             msg.ReceivedOnServer(cnn);
         else msg.ReceivedOnClient();

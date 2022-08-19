@@ -61,8 +61,7 @@ public class Client : MonoSingleton<Client>
         {
             if (cmd == NetworkEvent.Type.Connect)
             {
-                //SendToServer(new NetWelcome());
-                Debug.Log("We Succeded!!!");
+                SendToServer(new NetWelcome());
             }
             else if(cmd == NetworkEvent.Type.Data)
             {

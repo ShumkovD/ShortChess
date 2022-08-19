@@ -13,14 +13,14 @@ public class Knight : ChessPiece
         int y = currentY + 2;
 
         if (x < tileCountX && y < tileCountY)
-            if (board[x, y] == null || board[x, y].team! == team)
+            if (board[x, y] == null || board[x, y].team != team)
                returnValue.Add(new Vector2Int(x, y));
         //‰Eã2
         x = currentX + 2;
         y = currentY + 1;
 
         if (x < tileCountX && y < tileCountY)
-            if (board[x, y] == null || board[x, y].team! == team)
+            if (board[x, y] == null || board[x, y].team != team)
                 returnValue.Add(new Vector2Int(x, y));
 
         //¶ã1
@@ -29,14 +29,14 @@ public class Knight : ChessPiece
         y = currentY + 2;
 
         if (x >= 0 && y < tileCountY)
-            if (board[x, y] == null || board[x, y].team! == team)
+            if (board[x, y] == null || board[x, y].team != team)
                 returnValue.Add(new Vector2Int(x, y));
         //¶ã2
         x = currentX - 2;
         y = currentY + 1;
 
         if (x >= 0 && y < tileCountY)
-            if (board[x, y] == null || board[x, y].team! == team)
+            if (board[x, y] == null || board[x, y].team != team)
                 returnValue.Add(new Vector2Int(x, y));
 
         //¶‰º1
@@ -45,14 +45,14 @@ public class Knight : ChessPiece
         y = currentY - 2;
 
         if (x >= 0 && y >= 0)
-            if (board[x, y] == null || board[x, y].team! == team)
+            if (board[x, y] == null || board[x, y].team != team)
                 returnValue.Add(new Vector2Int(x, y));
         //¶‰º1
         x = currentX - 2;
         y = currentY - 1;
 
         if (x >= 0 && y >= 0)
-            if (board[x, y] == null || board[x, y].team! == team)
+            if (board[x, y] == null || board[x, y].team != team)
                 returnValue.Add(new Vector2Int(x, y));
 
         //‰E‰º1
@@ -61,14 +61,14 @@ public class Knight : ChessPiece
         y = currentY - 2;
 
         if (x < tileCountX && y >= 0)
-            if (board[x, y] == null || board[x, y].team! == team)
+            if (board[x, y] == null || board[x, y].team != team)
                 returnValue.Add(new Vector2Int(x, y));
         //‰E‰º2
         x = currentX + 2;
         y = currentY - 1;
 
         if (x < tileCountX && y >= 0)
-            if (board[x, y] == null || board[x, y].team! == team)
+            if (board[x, y] == null || board[x, y].team != team)
                 returnValue.Add(new Vector2Int(x, y));
 
         return returnValue;

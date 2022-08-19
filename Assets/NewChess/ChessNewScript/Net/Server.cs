@@ -113,7 +113,6 @@ public class Server : MonoSingleton<Server>
     }
 
     //Server Specific
-
     public void SendToClient(NetworkConnection connection, NetMessage msg)
     {
         DataStreamWriter writer;
@@ -133,6 +132,7 @@ public class Server : MonoSingleton<Server>
             }
         }
     }
+
 
 
 
