@@ -18,7 +18,7 @@ EditorBuildSettings:
     path: Assets/Scenes/UIScene.unity
     guid: a4331e94beb30d44bad7aff79ab3c7f1
   - enabled: 0
-    path: Assets/Scenes/ChessBoard.unity
+    path: 
     guid: 6ea7003b8e13a114989de4b76a52fe5d
   - enabled: 0
     path: 
@@ -26,4 +26,7 @@ EditorBuildSettings:
   - enabled: 0
     path: Assets/Scenes/GameScene.unity
     guid: ddd0946fa42af42469b56ebe52120257
+  - enabled: 1
+    path: Assets/Scenes/ChessRenew.unity
+    guid: 4e7b0151c83f49841a9b408d84adf8ea
   m_configObjects: {}
