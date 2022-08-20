@@ -196,7 +196,7 @@ public class ChessBoard : MonoBehaviour
 
                 deadWhites.Add(otherChessPiece);
                 otherChessPiece.SetScale(deadPieceSize * Vector3.one);
-                otherChessPiece.SetPosition(new Vector3(-tileCountX * 0.5f + deadWhites.Count - 1, +tileCountY - 3, 0), true);
+                otherChessPiece.SetPosition(new Vector3(3 + deadWhites.Count/7, -3 + ((deadWhites.Count - 1) % 6), 0), true);
             }
             else
             {
@@ -205,7 +205,8 @@ public class ChessBoard : MonoBehaviour
 
                 deadBlacks.Add(otherChessPiece);
                 otherChessPiece.SetScale(deadPieceSize * Vector3.one);
-                otherChessPiece.SetPosition(new Vector3(tileCountX * 0.5f - deadBlacks.Count, -tileCountY + 2, 0), true);
+                otherChessPiece.SetPosition(new Vector3(-4 - deadBlacks.Count/7, 2 - ((deadBlacks.Count - 1) % 6), 0), true);
+                Debug.Log(2 - (deadBlacks.Count - 1 % 6));
             }
 
         }
