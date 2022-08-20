@@ -36,13 +36,6 @@ public class ChessPiece : MonoBehaviour
         return returnValue;
     }
 
-    public virtual List<Vector2Int> GetAvailablePrepMoves(ref ChessPiece[,] board, int tileCountX, int tileCountY)
-    {
-        List<Vector2Int> returnValue = new List<Vector2Int>();
-
-        return returnValue;
-    }
-
     public virtual SpecialMove GetSpecialMoves(ref ChessPiece[,] chessPieces, ref List<Vector2Int[]> moveList, ref List<Vector2Int>availableMoves)
     {
         return SpecialMove.None;

@@ -13,11 +13,8 @@ public class ChessBoard : MonoBehaviour
 {
     private const int tileCountX = 6;
     private const int tileCountY = 6;
-    private const int tileSize = 1;
 
     private GameObject[,] tiles;
-    private GameObject[,] prepTiles;
-
     private Camera currentCamera;
 
     [Header("Sprites")]
@@ -35,7 +32,6 @@ public class ChessBoard : MonoBehaviour
     RaycastHit2D lastInfo;
 
     Vector2Int hitPosition;
-    Vector2Int prepHitPosition;
 
     [Header("Prefabs&Materials")]
     [SerializeField] GameObject[] prefabW;
@@ -45,7 +41,6 @@ public class ChessBoard : MonoBehaviour
     [Header("Logic")]
 
     private ChessPiece[,] chessPieces;
-    private ChessPiece[,] prepPieces;
     private ChessPiece currentlyDragging;
 
 
@@ -55,7 +50,6 @@ public class ChessBoard : MonoBehaviour
     private List<ChessPiece> deadBlacks = new List<ChessPiece>();
 
     private bool isWhiteTurn;
-    bool prepArray = false;
 
     private SpecialMove specialMove;
 
@@ -70,11 +64,10 @@ public class ChessBoard : MonoBehaviour
         isWhiteTurn = true;
 
         prefabs = new GameObject[2][] { prefabW, prefabB};
-        GenerateAllTiles(tileSize, tileCountX, tileCountY);
+        GenerateAllTiles(1, tileCountX, tileCountY);
         SpawnAllPieces();
         PositionAllPieces();
 
-        PositionAllPrepPieces();
         RegisterEvents();
     }
 
@@ -83,7 +76,7 @@ public class ChessBoard : MonoBehaviour
         if (!currentCamera)
         {
             currentCamera = Camera.main;
-            currentCamera.transform.position = new Vector3(-0.5f, -0.5f, -15);
+            currentCamera.transform.position = new Vector3(-0.5f, -0.5f, -10);
             return;
         }
 
@@ -91,44 +84,10 @@ public class ChessBoard : MonoBehaviour
         RaycastHit2D info = Physics2D.GetRayIntersection(Camera.main.ScreenPointToRay(Input.mousePosition),10, LayerMask.GetMask("Tile", "Hover","Highlight"));
         if (info.collider)
         {
+
             // Get the indexes of the tile i've hit
 
-            hitPosition = LookupTileIndex(info.transform.gameObject, out prepArray);
-
-
-            if (prepArray)
-            {
-                if (currentHover == -Vector2Int.one)
-                {
-                    currentHover = hitPosition;
-                    prepTiles[hitPosition.x, hitPosition.y].layer = LayerMask.NameToLayer("Hover");
-                    Debug.Log(prepTiles[hitPosition.x, hitPosition.y] + " " + prepTiles[hitPosition.x, hitPosition.y].layer);
-                }
-
-                // If we were already hovering a tile, change the previous one
-                if (currentHover != hitPosition)
-                {
-                    prepTiles[currentHover.x, currentHover.y].layer = (ContainsValidMove(ref availableMoves, currentHover)) ? LayerMask.NameToLayer("Highlight") : LayerMask.NameToLayer("Tile");
-                    currentHover = hitPosition;
-                    prepTiles[hitPosition.x, hitPosition.y].layer = LayerMask.NameToLayer("Hover");
-                }
-
-                if (Input.GetMouseButtonDown(0))
-                {
-                    if (prepPieces[hitPosition.x, hitPosition.y] != null)
-                    {
-                        if (prepPieces[hitPosition.x, hitPosition.y].team == 0 && isWhiteTurn && currentTeam == 0 || prepPieces[hitPosition.x, hitPosition.y].team == 1 && !isWhiteTurn && currentTeam == 1)
-                        {
-                            currentlyDragging = prepPieces[hitPosition.x, hitPosition.y];
-                            availableMoves = currentlyDragging.GetAvailablePrepMoves(ref chessPieces, tileCountX, tileCountY);
-                            HighlightTiles();
-                        }
-                    }
-                }
-
-
-                return;
-            }
+            hitPosition = LookupTileIndex(info.transform.gameObject);
 
             // If we're hovering a tile after not hovering any tiles
             if (currentHover == -Vector2Int.one)
@@ -195,12 +154,9 @@ public class ChessBoard : MonoBehaviour
         {
             if (currentHover != -Vector2Int.one)
             {
-                if(!prepArray)
                 tiles[currentHover.x, currentHover.y].layer = (ContainsValidMove(ref availableMoves, currentHover)) ? LayerMask.NameToLayer("Highlight") : LayerMask.NameToLayer("Tile");
-                else prepTiles[currentHover.x, currentHover.y].layer = (ContainsValidMove(ref availableMoves, currentHover)) ? LayerMask.NameToLayer("Highlight") : LayerMask.NameToLayer("Tile");
                 currentHover = -Vector2Int.one;
             }   
-
             if (currentlyDragging && Input.GetMouseButtonUp(0))
             {
                 currentlyDragging.SetPosition(GetTileCenter(currentlyDragging.currentX, currentlyDragging.currentY));
@@ -289,13 +245,6 @@ public class ChessBoard : MonoBehaviour
             {
                 tiles[i,j] = GenerateSingleTile(tileSize, i, j);
             }    
-
-        prepTiles = new GameObject[tileCountX, 2];
-        for (int i = 0; i < tileCountX; i++)
-            for (int j = 0; j < 2; j++)
-            {
-                prepTiles[i, j] = GenerateSingleTile(tileSize, i, j == 0 ? -2: 7);
-            }
     }
     private GameObject GenerateSingleTile(float tileSize, int x, int y)
     {
@@ -315,40 +264,31 @@ public class ChessBoard : MonoBehaviour
     private void SpawnAllPieces()
     {
         chessPieces = new ChessPiece[tileCountX, tileCountY];
-
         int whiteTeam = 0, blackTeam = 1;
-        if (localGame)
+        //下のコードは「仮」！
+        chessPieces[0, 0] = SpawnSinglePiece(ChessPieceType.Knight, whiteTeam);
+        chessPieces[1, 0] = SpawnSinglePiece(ChessPieceType.Bishop, whiteTeam);
+        chessPieces[2, 0] = SpawnSinglePiece(ChessPieceType.Rook, whiteTeam);
+        chessPieces[3, 0] = SpawnSinglePiece(ChessPieceType.King, whiteTeam);
+        chessPieces[4, 0] = SpawnSinglePiece(ChessPieceType.Bishop, whiteTeam);
+        chessPieces[5, 0] = SpawnSinglePiece(ChessPieceType.Knight, whiteTeam);
+
+        for(int i = 0; i < tileCountX; i++)
         {
-            //下のコードは「仮」！
-            chessPieces[0, 0] = SpawnSinglePiece(ChessPieceType.Knight, whiteTeam);
-            chessPieces[1, 0] = SpawnSinglePiece(ChessPieceType.Bishop, whiteTeam);
-            chessPieces[2, 0] = SpawnSinglePiece(ChessPieceType.Rook, whiteTeam);
-            chessPieces[3, 0] = SpawnSinglePiece(ChessPieceType.King, whiteTeam);
-            chessPieces[4, 0] = SpawnSinglePiece(ChessPieceType.Bishop, whiteTeam);
-            chessPieces[5, 0] = SpawnSinglePiece(ChessPieceType.Knight, whiteTeam);
-
-            for (int i = 0; i < tileCountX; i++)
-            {
-                chessPieces[i, 1] = SpawnSinglePiece(ChessPieceType.Pawn, whiteTeam);
-            }
-
-            chessPieces[0, 5] = SpawnSinglePiece(ChessPieceType.Knight, blackTeam);
-            chessPieces[1, 5] = SpawnSinglePiece(ChessPieceType.Bishop, blackTeam);
-            chessPieces[2, 5] = SpawnSinglePiece(ChessPieceType.Rook, blackTeam);
-            chessPieces[3, 5] = SpawnSinglePiece(ChessPieceType.King, blackTeam);
-            chessPieces[4, 5] = SpawnSinglePiece(ChessPieceType.Bishop, blackTeam);
-            chessPieces[5, 5] = SpawnSinglePiece(ChessPieceType.Knight, blackTeam);
-
-            for (int i = 0; i < tileCountX; i++)
-            {
-                chessPieces[i, 4] = SpawnSinglePiece(ChessPieceType.Pawn, blackTeam);
-            }
+            chessPieces[i, 1] = SpawnSinglePiece(ChessPieceType.Pawn, whiteTeam);
         }
 
-        prepPieces = new ChessPiece[tileCountX, 2];
+        chessPieces[0, 5] = SpawnSinglePiece(ChessPieceType.Knight, blackTeam);
+        chessPieces[1, 5] = SpawnSinglePiece(ChessPieceType.Bishop, blackTeam);
+        chessPieces[2, 5] = SpawnSinglePiece(ChessPieceType.Rook, blackTeam);
+        chessPieces[3, 5] = SpawnSinglePiece(ChessPieceType.King, blackTeam);
+        chessPieces[4, 5] = SpawnSinglePiece(ChessPieceType.Bishop, blackTeam);
+        chessPieces[5, 5] = SpawnSinglePiece(ChessPieceType.Knight, blackTeam);
 
-        prepPieces[0, 0] = SpawnSinglePiece(ChessPieceType.Knight, whiteTeam);
-        prepPieces[1, 0] = SpawnSinglePiece(ChessPieceType.Bishop, whiteTeam);
+        for (int i = 0; i < tileCountX; i++)
+        {
+            chessPieces[i, 4] = SpawnSinglePiece(ChessPieceType.Pawn, blackTeam);
+        }
     }
 
     private ChessPiece SpawnSinglePiece(ChessPieceType type, int team)
@@ -370,33 +310,12 @@ public class ChessBoard : MonoBehaviour
                     PositionSinglePiece(x, y, true);
     }
 
-    private void PositionAllPrepPieces()
-    {
-        isWhiteTurn = true;
-        for (int x = 0; x < tileCountX; x++)
-            for (int y = 0; y < 2; y++)
-                if (prepPieces[x, y] != null)
-                    PositionSinglePrepPiece(x, y, true);
-    }
-
-
     private void PositionSinglePiece(int x, int y, bool force = false)
     {
         chessPieces[x, y].currentX = x;
         chessPieces[x, y].currentY = y;
         chessPieces[x, y].SetPosition(GetTileCenter(x, y), force);
     }
-
-    private void PositionSinglePrepPiece(int x, int y, bool force = false)
-    {
-        Debug.Log(x);
-        prepPieces[x, y].currentX = x;
-        int posY = y == 0 ? -2 : 7;
-        prepPieces[x, y].currentY = posY;
-        Debug.Log(prepPieces[x, y].currentY);
-        prepPieces[x, y].SetPosition(GetTileCenter(x, posY), force);
-    }
-
 
     private void HighlightTiles()
     {
@@ -667,25 +586,13 @@ public class ChessBoard : MonoBehaviour
     }
 
     //検索
-    private Vector2Int LookupTileIndex(GameObject hitInfo, out bool prepArray)
+    private Vector2Int LookupTileIndex(GameObject hitInfo)
     {
-        prepArray = false;
+
         for (int x = 0; x < tileCountX; x++)
-            for (int y = 0; y < tileCountY; y++)
+            for (int y = 0; y < tileCountY; y++) 
                 if (tiles[x, y] == hitInfo)
-                {
-                    prepArray = false;
                     return new Vector2Int(x, y);
-                }
-        for(int x = 0; x < tileCountX; x++) 
-            for(int y = 0; y < 2; y++)
-            {
-                if (prepTiles[x, y] == hitInfo)
-                {
-                    prepArray = true;
-                    return new Vector2Int(x, y);
-                }
-            }
 
         return -Vector2Int.one;
     }

@@ -60,15 +60,4 @@ public class Bishop : ChessPiece
 
         return returnValue;
     }
-
-    public override List<Vector2Int> GetAvailablePrepMoves(ref ChessPiece[,] board, int tileCountX, int tileCountY)
-    {
-        List<Vector2Int> returnValue = new List<Vector2Int>();
-        for (int i = 0; i < tileCountX; i++)
-            if (board[i, 0] == null)
-                returnValue.Add(new Vector2Int(i, 0));
-
-        return returnValue;
-    }
-
 }
