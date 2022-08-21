@@ -57,4 +57,18 @@ public class Rook : ChessPiece
         }
         return returnValue;
     }
+
+    public override List<Vector2Int> GetAvailablePrepMoves(ref ChessPiece[,] board, int tileCountX, int tileCountY)
+    {
+        List<Vector2Int> returnValue = new List<Vector2Int>();
+        int teamY = team == 0 ? 0 : 5;
+        for (int x = 0; x < tileCountX; x++)
+            if (board[x, teamY] == null)
+            {
+                returnValue.Add(new Vector2Int(x, teamY));
+            }
+
+        return returnValue;
+    }
+
 }

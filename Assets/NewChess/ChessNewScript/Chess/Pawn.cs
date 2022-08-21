@@ -37,4 +37,52 @@ public class Pawn : ChessPiece
         return SpecialMove.None;
     }
 
+    public override List<Vector2Int> GetAvailablePrepMoves(ref ChessPiece[,] board, int tileCountX, int tileCountY)
+    {
+        List<Vector2Int> returnValue = new List<Vector2Int>();
+
+        if (team == 0)
+        {
+            for (int x = 0; x < tileCountX; x++)
+            {
+                if (board[currentX, 0] != null)
+                {
+                    if (board[x, 1] == null && board[currentX, 0].type != ChessPieceType.King)
+                    {
+                        returnValue.Add(new Vector2Int(x, 1));
+                    }
+                }
+                else
+                {
+                    if (board[x, 1] == null)
+                    {
+                        returnValue.Add(new Vector2Int(x, 1));
+                    }
+                }
+            }
+        }
+        else
+        {
+            for (int x = 0; x < tileCountX; x++)
+            {
+                if (board[currentX, 5] != null)
+                {
+                    if (board[x, 4] == null && board[currentX, 5].type != ChessPieceType.King)
+                    {
+                        returnValue.Add(new Vector2Int(x, 4));
+                    }
+                }
+                else
+                {
+                    if (board[x, 4] == null)
+                    {
+                        returnValue.Add(new Vector2Int(x, 4));
+                    }
+                }
+            }
+        }
+
+        return returnValue;
+    }
+
 }

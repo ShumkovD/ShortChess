@@ -26,7 +26,8 @@ public class ChessBoard : MonoBehaviour
     [SerializeField] private Transform rematchIndicator;
     [SerializeField] private Button rematchButton;
     [SerializeField] private Button menuButton;
-
+    [SerializeField] private GameObject gamePreparationUI;
+    [SerializeField] private GameObject gamePreparationButton;
 
     private Vector2Int currentHover;
     RaycastHit2D lastInfo;
@@ -41,6 +42,8 @@ public class ChessBoard : MonoBehaviour
     [Header("Logic")]
 
     private ChessPiece[,] chessPieces;
+    int whiteTeam = 0, blackTeam = 1;
+
     private ChessPiece currentlyDragging;
 
 
@@ -58,6 +61,9 @@ public class ChessBoard : MonoBehaviour
     private int currentTeam = -1;
     private bool localGame = true;
     private bool[] playerRematch = new bool[2];
+    private bool[] playerPreparationOver= new bool[2];
+
+    private bool preparationPhase = false;
 
     private void Start()
     {
@@ -65,8 +71,9 @@ public class ChessBoard : MonoBehaviour
 
         prefabs = new GameObject[2][] { prefabW, prefabB};
         GenerateAllTiles(1, tileCountX, tileCountY);
-        SpawnAllPieces();
-        PositionAllPieces();
+
+        chessPieces = new ChessPiece[tileCountX, tileCountY];
+  
 
         RegisterEvents();
     }
@@ -110,10 +117,16 @@ public class ChessBoard : MonoBehaviour
                 if(chessPieces[hitPosition.x,hitPosition.y] != null)
                 {
                     Debug.Log(isWhiteTurn + " " + currentTeam);
-                    if(chessPieces[hitPosition.x,hitPosition.y].team == 0 && isWhiteTurn && currentTeam == 0 || chessPieces[hitPosition.x, hitPosition.y].team == 1 && !isWhiteTurn && currentTeam == 1)
-                    {
-                        currentlyDragging = chessPieces[hitPosition.x,hitPosition.y];
 
+                    currentlyDragging = chessPieces[hitPosition.x, hitPosition.y];
+                    if (preparationPhase)
+                    {
+                        availableMoves = currentlyDragging.GetAvailablePrepMoves(ref chessPieces, tileCountX, tileCountY);
+                        HighlightTiles();
+                    }
+                    else
+                    if((chessPieces[hitPosition.x,hitPosition.y].team == 0 && isWhiteTurn && currentTeam == 0 || chessPieces[hitPosition.x, hitPosition.y].team == 1 && !isWhiteTurn && currentTeam == 1 ) && !preparationPhase)
+                    {
                         availableMoves = currentlyDragging.GetAvailableMoves(ref chessPieces, tileCountX, tileCountY);
 
                         specialMove = currentlyDragging.GetSpecialMoves(ref chessPieces, ref moveList, ref availableMoves);
@@ -263,42 +276,135 @@ public class ChessBoard : MonoBehaviour
 
     private void SpawnAllPieces()
     {
-        chessPieces = new ChessPiece[tileCountX, tileCountY];
-        int whiteTeam = 0, blackTeam = 1;
+        
         //下のコードは「仮」！
-        chessPieces[0, 0] = SpawnSinglePiece(ChessPieceType.Knight, whiteTeam);
-        chessPieces[1, 0] = SpawnSinglePiece(ChessPieceType.Bishop, whiteTeam);
-        chessPieces[2, 0] = SpawnSinglePiece(ChessPieceType.Rook, whiteTeam);
-        chessPieces[3, 0] = SpawnSinglePiece(ChessPieceType.King, whiteTeam);
-        chessPieces[4, 0] = SpawnSinglePiece(ChessPieceType.Bishop, whiteTeam);
-        chessPieces[5, 0] = SpawnSinglePiece(ChessPieceType.Knight, whiteTeam);
-
-        for(int i = 0; i < tileCountX; i++)
+        if (localGame)
         {
-            chessPieces[i, 1] = SpawnSinglePiece(ChessPieceType.Pawn, whiteTeam);
+            chessPieces[0, 0] = SpawnSinglePiece(ChessPieceType.Knight, whiteTeam);
+            chessPieces[1, 0] = SpawnSinglePiece(ChessPieceType.Bishop, whiteTeam);
+            chessPieces[2, 0] = SpawnSinglePiece(ChessPieceType.Rook, whiteTeam);
+            chessPieces[3, 0] = SpawnSinglePiece(ChessPieceType.King, whiteTeam);
+            chessPieces[4, 0] = SpawnSinglePiece(ChessPieceType.Bishop, whiteTeam);
+            chessPieces[5, 0] = SpawnSinglePiece(ChessPieceType.Knight, whiteTeam);
+
+            for (int i = 0; i < tileCountX; i++)
+            {
+                chessPieces[i, 1] = SpawnSinglePiece(ChessPieceType.Pawn, whiteTeam);
+            }
+
+            chessPieces[0, 5] = SpawnSinglePiece(ChessPieceType.Knight, blackTeam);
+            chessPieces[1, 5] = SpawnSinglePiece(ChessPieceType.Bishop, blackTeam);
+            chessPieces[2, 5] = SpawnSinglePiece(ChessPieceType.Rook, blackTeam);
+            chessPieces[3, 5] = SpawnSinglePiece(ChessPieceType.King, blackTeam);
+            chessPieces[4, 5] = SpawnSinglePiece(ChessPieceType.Bishop, blackTeam);
+            chessPieces[5, 5] = SpawnSinglePiece(ChessPieceType.Knight, blackTeam);
+
+            for (int i = 0; i < tileCountX; i++)
+            {
+                chessPieces[i, 4] = SpawnSinglePiece(ChessPieceType.Pawn, blackTeam);
+            }
+
         }
-
-        chessPieces[0, 5] = SpawnSinglePiece(ChessPieceType.Knight, blackTeam);
-        chessPieces[1, 5] = SpawnSinglePiece(ChessPieceType.Bishop, blackTeam);
-        chessPieces[2, 5] = SpawnSinglePiece(ChessPieceType.Rook, blackTeam);
-        chessPieces[3, 5] = SpawnSinglePiece(ChessPieceType.King, blackTeam);
-        chessPieces[4, 5] = SpawnSinglePiece(ChessPieceType.Bishop, blackTeam);
-        chessPieces[5, 5] = SpawnSinglePiece(ChessPieceType.Knight, blackTeam);
-
-        for (int i = 0; i < tileCountX; i++)
+        else
         {
-            chessPieces[i, 4] = SpawnSinglePiece(ChessPieceType.Pawn, blackTeam);
+            int[,] infoChessPieces = new int[tileCountX, tileCountY];
+
+            for (int x = 0; x < tileCountX; x++)
+                for (int y = 0; y < tileCountY; y++)
+                    infoChessPieces[x,y] = 0;
+
+            int[,] infoTeam        = new int[tileCountX,tileCountY];
+
+            int kingPos = Random.Range(1, 5);
+            infoChessPieces[kingPos, 0] = (int)ChessPieceType.King;
+            infoTeam[kingPos, 0] = whiteTeam;
+            infoChessPieces[kingPos, 1] = (int)ChessPieceType.Pawn;
+            infoTeam[kingPos, 1] = whiteTeam;
+
+            kingPos = Random.Range(1, 5);
+            infoChessPieces[kingPos, 5] = (int)ChessPieceType.King;
+            infoTeam[kingPos, 5] = blackTeam;
+            infoChessPieces[kingPos, 4] = (int)ChessPieceType.Pawn;
+            infoTeam[kingPos, 4] = blackTeam;
+
+            int pawnAmount = Random.Range(2, 4);
+            for (int i = 0; i < pawnAmount; i++)
+            {
+                int randomPositionX = Random.Range(0, 6);
+                if (infoChessPieces[randomPositionX, 1] != 0)
+                {
+                    i--;
+                    continue;
+                }
+                infoChessPieces[randomPositionX, 1] = (int)ChessPieceType.Pawn;
+                infoTeam[randomPositionX, 1] = whiteTeam;
+            }
+
+            for (int i = 0; i < pawnAmount; i++)
+            {
+                int randomPositionX = Random.Range(0, 6);
+                if (infoChessPieces[randomPositionX, 4] != 0)
+                {
+                    i--;
+                    continue;
+                }
+                infoChessPieces[randomPositionX, 4] = (int)ChessPieceType.Pawn;
+                infoTeam[randomPositionX, 4] = blackTeam;
+            }
+
+            int randomChessPiece = Random.Range(2, 5);
+
+            for (int i = 0; i < 2; i++)
+            {
+                int randomPositionX = Random.Range(1, 5);
+                
+                if (infoChessPieces[randomPositionX, 0] != 0)
+                {
+                    i--;
+                    continue;
+                }
+                infoChessPieces[randomPositionX, 0] = randomChessPiece;
+                infoTeam[randomPositionX, 0] = whiteTeam;
+
+            }
+
+            for (int i = 0; i < 2; i++)
+            {
+                int randomPositionX = Random.Range(1, 5);
+                if (infoChessPieces[randomPositionX, 5] != 0)
+                {
+                    i--;
+                    continue;
+                }
+                infoChessPieces[randomPositionX, 5] = randomChessPiece;
+                infoTeam[randomPositionX, 5] = blackTeam;
+
+            }
+            for (int x = 0; x < tileCountX; x++)
+                for (int y = 0; y < tileCountY; y++)
+                {
+                    if (infoChessPieces[x,y] != 0)
+                    {
+                        NetPreparation newNp = new NetPreparation();
+                        newNp.teamID = infoTeam[x,y];
+                        newNp.positionX = x;
+                        newNp.positionY = y;
+                        newNp.chessType = infoChessPieces[x, y];
+                        Server.instance.BroadCast(newNp);
+                    }
+                }
         }
     }
 
-    private ChessPiece SpawnSinglePiece(ChessPieceType type, int team)
+    private ChessPiece SpawnSinglePiece(ChessPieceType type, int team, bool dataType = false)
     {
+
         ChessPiece cp = Instantiate(prefabs[team][(int)type - 1], transform).GetComponent<ChessPiece>();
 
         cp.type = type;
         cp.team = team;
-        return cp; 
-
+        return cp;
+        
     }
 
     private void PositionAllPieces()
@@ -399,6 +505,16 @@ public class ChessBoard : MonoBehaviour
         }
     }
 
+    public void OnReadyButton()
+    {
+        NetPreparationInput pri = new NetPreparationInput();
+        pri.teamID = currentTeam;
+        pri.prepOver = 1;
+        Debug.Log(playerPreparationOver[0] + " " + playerPreparationOver[1]);
+        Client.instance.SendToServer(pri);
+        gamePreparationButton.gameObject.SetActive(false);
+    }
+
 
 
     void ResetGame()
@@ -428,6 +544,7 @@ public class ChessBoard : MonoBehaviour
         
         moveList.Clear();
         playerRematch[0] = playerRematch[1] = false;
+        playerPreparationOver[0] = playerPreparationOver[1] = false;
 
         for(int x = 0;x<deadWhites.Count;x++)
             Destroy(deadWhites[x].gameObject);
@@ -441,11 +558,15 @@ public class ChessBoard : MonoBehaviour
         RemoveHighlightTiles();
         availableMoves.Clear();
 
-        SpawnAllPieces();
-        PositionAllPieces();
+
 
         if (localGame)
             currentTeam = 0;
+
+        SpawnAllPieces();
+        //Camera
+        preparationPhase = true;
+        Server.instance.BroadCast(new NetStartGame());
     }
     public void OnMenuButton()
     {
@@ -607,11 +728,15 @@ public class ChessBoard : MonoBehaviour
         NetUtility.SWelcome += OnWelcomeServer;
         NetUtility.SMakeMove += OnMakeMoveServer;
         NetUtility.SRematch += OnRematchServer;
+        NetUtility.SPreparation += OnPreparationServer;
+        NetUtility.SPreparationInput += OnPreparationInputServer;
 
         NetUtility.CRematch += OnRematchClient;
         NetUtility.CMakeMove += OnMakeMoveClient;
         NetUtility.CWelcome += OnWelcomeClient;
         NetUtility.CStartGame += OnStartGameClient;
+        NetUtility.CPreparation += OnPreparationClient;
+        NetUtility.CPreparationInput += OnPreparationInputClient;
 
         GameUI.Instance.setLocalGame += OnSetLocalGame;
     }
@@ -620,11 +745,15 @@ public class ChessBoard : MonoBehaviour
         NetUtility.SWelcome -= OnWelcomeServer;
         NetUtility.SMakeMove -= OnMakeMoveServer;
         NetUtility.SRematch -= OnRematchServer;
+        NetUtility.SPreparation -= OnPreparationServer;
+        NetUtility.SPreparationInput -= OnPreparationInputServer;
 
+        NetUtility.CPreparation -= OnPreparationClient;
         NetUtility.CRematch -= OnRematchClient;
         NetUtility.CMakeMove -= OnMakeMoveClient;
         NetUtility.CWelcome -= OnWelcomeClient;
         NetUtility.CStartGame -= OnStartGameClient;
+        NetUtility.CPreparationInput -= OnPreparationInputClient;
 
         GameUI.Instance.setLocalGame -= OnSetLocalGame;
     }
@@ -640,6 +769,9 @@ public class ChessBoard : MonoBehaviour
         //仮
         if(playerCount == 1)
         {
+            //NetPreparation
+            SpawnAllPieces();
+            //Camera
             Server.instance.BroadCast(new NetStartGame());
         }
     }
@@ -650,37 +782,35 @@ public class ChessBoard : MonoBehaviour
 
         currentTeam = nw.AssignedTeam;
 
-        if(localGame && currentTeam == 0)
+        preparationPhase = true;
+
+        if (localGame && currentTeam == 0)
         {
+            SpawnAllPieces();
+            PositionAllPieces();
+            preparationPhase = false;
             Server.instance.BroadCast(new NetStartGame());
         }
-
-
         Debug.Log("My assigned team is " + currentTeam);
     }
 
     private void OnStartGameClient(NetMessage msg)
     {
-        GameUI.Instance.SetCameraToTeam((currentTeam == 0) ? CameraAngle.WhiteTeam : CameraAngle.BlackTeam);
-
-        LayerMask oldMask = currentCamera.cullingMask;
-        if (currentTeam == 0 || localGame)
+        SettingCamera();
+        if (preparationPhase)
         {
-            var newMask = oldMask & ~(1 << 11);
-            currentCamera.cullingMask = newMask;
+            gamePreparationUI.SetActive(true);
         }
-        if (currentTeam == 1)
+        else
         {
-            var newMask = oldMask & ~(1 << 10);
-            currentCamera.cullingMask = newMask;
+            Debug.Log("Game Start!");
         }
-
     }
 
      private void OnMakeMoveServer(NetMessage msg, NetworkConnection cnn)
     {
         NetMakeMove nw = msg as NetMakeMove;
-
+ 
         Server.instance.BroadCast(nw);
     }
 
@@ -689,10 +819,20 @@ public class ChessBoard : MonoBehaviour
         NetMakeMove mm = msg as NetMakeMove;
 
         Debug.Log($"{mm.teamID} : {mm.originalX} {mm.originalY} -> {mm.destinationX} {mm.destinationY}");
-
-        if (mm.teamID != currentTeam)
+        if(preparationPhase)
         {
             ChessPiece target = chessPieces[mm.originalX, mm.originalY];
+            if (target == null)
+                return;
+            availableMoves = target.GetAvailablePrepMoves(ref chessPieces, tileCountX, tileCountY);
+            MoveTo(mm.originalX, mm.originalY, mm.destinationX, mm.destinationY);
+        }
+
+        if (mm.teamID != currentTeam && !preparationPhase)
+        {
+            ChessPiece target = chessPieces[mm.originalX, mm.originalY];
+            if (target == null)
+                return;
             availableMoves = target.GetAvailableMoves(ref chessPieces, tileCountX, tileCountY);
             specialMove = target.GetSpecialMoves(ref chessPieces, ref moveList, ref availableMoves);
             MoveTo(mm.originalX, mm.originalY, mm.destinationX, mm.destinationY);
@@ -700,9 +840,23 @@ public class ChessBoard : MonoBehaviour
 
     }
 
+    private void OnPreparationServer(NetMessage msg, NetworkConnection cnn)
+    {
+        NetPreparation nw = msg as NetPreparation;
+        Server.instance.BroadCast(nw);
+    }
+    private void OnPreparationClient(NetMessage msg)
+    {
+        NetPreparation np = msg as NetPreparation;
+
+        chessPieces[np.positionX, np.positionY] = SpawnSinglePiece((ChessPieceType)np.chessType, np.teamID);
+        PositionSinglePiece(np.positionX, np.positionY, true);
+        gamePreparationButton.SetActive(true);
+    }
+
     private void OnRematchServer(NetMessage msg, NetworkConnection cnn)
     {
-      Server.instance.BroadCast(msg);
+        Server.instance.BroadCast(msg);
     }
 
     private void OnRematchClient(NetMessage msg)
@@ -725,6 +879,31 @@ public class ChessBoard : MonoBehaviour
 
     }
 
+    private void OnPreparationInputServer(NetMessage msg, NetworkConnection cnn)
+    {
+        NetPreparationInput pri = msg as NetPreparationInput;
+        Debug.Log("SERVER SENDS");
+        Server.instance.BroadCast(pri);
+    }
+
+    private void OnPreparationInputClient(NetMessage msg)
+    {
+        NetPreparationInput pri = msg as NetPreparationInput;
+
+        playerPreparationOver[pri.teamID] = pri.prepOver == 1;
+
+        Debug.Log("INSIDE OF PREP");
+        if (playerPreparationOver[0] && playerPreparationOver[1])
+        {
+        Debug.Log("INSIDE OF Ready");
+            
+            availableMoves.Clear();
+            preparationPhase = false;
+            gamePreparationUI.SetActive(false);
+            gamePreparationButton.SetActive(false);
+        }
+    }
+
     private void OnSetLocalGame(bool isLocal)
     {
         playerCount = -1;
@@ -736,6 +915,24 @@ public class ChessBoard : MonoBehaviour
     {
         Client.instance.Shutdown();
         Server.instance.Shutdown();
+    }
+
+    private void SettingCamera()
+    {
+
+        GameUI.Instance.SetCameraToTeam((currentTeam == 0) ? CameraAngle.WhiteTeam : CameraAngle.BlackTeam);
+
+        LayerMask oldMask = currentCamera.cullingMask;
+        if (currentTeam == 0 || localGame)
+        {
+            var newMask = oldMask & ~(1 << 11);
+            currentCamera.cullingMask = newMask;
+        }
+        if (currentTeam == 1)
+        {
+            var newMask = oldMask & ~(1 << 10);
+            currentCamera.cullingMask = newMask;
+        }
     }
 
 }

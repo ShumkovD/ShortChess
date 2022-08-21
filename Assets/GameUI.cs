@@ -19,6 +19,7 @@ public class GameUI : MonoBehaviour
     [SerializeField] private Animator       menuAnimator;
     [SerializeField] private TMP_InputField addressInput;
     [SerializeField] private GameObject[]   cameraAngles;
+    [SerializeField] private GameObject     gamePreparationUI;
 
     public Action<bool> setLocalGame;
 
@@ -86,6 +87,7 @@ public class GameUI : MonoBehaviour
     private void UnregisterEvents()
     {
         NetUtility.CStartGame -= OnStartGameClient;
+
     }
 
     private void OnStartGameClient(NetMessage msg)

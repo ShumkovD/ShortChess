@@ -11,6 +11,7 @@ public enum OpCode
     MakeMove = 4,
     Rematch = 5,
     Preparation = 6,
+    PreparationInput = 7,
 }
 
 
@@ -28,6 +29,7 @@ public static class NetUtility
             case OpCode.MakeMove:  msg = new NetMakeMove(stream); break; 
             case OpCode.Rematch:  msg = new NetRematch(stream); break;
             case OpCode.Preparation:  msg = new NetPreparation(stream); break;
+            case OpCode.PreparationInput:  msg = new NetPreparationInput(stream); break;
             default:
                     break;
                 
@@ -46,6 +48,7 @@ public static class NetUtility
     public static Action<NetMessage> CMakeMove;
     public static Action<NetMessage> CRematch;
     public static Action<NetMessage> CPreparation;
+    public static Action<NetMessage> CPreparationInput;
     //サーバー
     public static Action<NetMessage, NetworkConnection> SKeepAlive;
     public static Action<NetMessage, NetworkConnection> SWelcome;
@@ -53,4 +56,5 @@ public static class NetUtility
     public static Action<NetMessage, NetworkConnection> SMakeMove;
     public static Action<NetMessage, NetworkConnection> SRematch;
     public static Action<NetMessage, NetworkConnection> SPreparation;
+    public static Action<NetMessage, NetworkConnection> SPreparationInput;
 }
