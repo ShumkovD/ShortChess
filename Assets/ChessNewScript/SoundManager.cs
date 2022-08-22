@@ -6,11 +6,13 @@ using UnityEngine.Pool;
 /// <summary>
 /// サウンド管理クラス
 /// </summary>
+
+//継承は仮！
 public class SoundManager : Singleton<SoundManager>
 {
     private void Awake()
     {
-        if (this != Instance)
+        if (this != instance)
         {
             Destroy(this);
             return;
