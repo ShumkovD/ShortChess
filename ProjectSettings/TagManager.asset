@@ -13,11 +13,11 @@ TagManager:
   - Water
   - UI
   - 
-  - PlayerA
-  - PlayerB
-  - 
-  - 
-  - 
+  - Tile
+  - Hover
+  - Highlight
+  - WhiteRender
+  - BlackRender
   - 
   - 
   - 
