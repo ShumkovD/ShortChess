@@ -8,19 +8,20 @@ using UnityEngine.Pool;
 /// </summary>
 
 //継承は仮！
-public class SoundManager : Singleton<SoundManager>
+public class SoundManager : MonoSingleton<SoundManager>
 {
     private void Awake()
     {
-        if (this != instance)
-        {
-            Destroy(this);
-            return;
-        }
+        //if (this != instance)
+        //{
+        //    Destroy(this);
+        //    return;
+        //}
 
         foreach (var soundData in soundDatas)
         {
             soundDictionary.Add(soundData.name, soundData);
+            Debug.Log(soundData.name + "を登録");
         }
     }
 
