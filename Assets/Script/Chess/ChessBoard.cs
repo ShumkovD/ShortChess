@@ -9,6 +9,15 @@ public enum SpecialMove
     Promotion = 1
 }
 
+public enum GameEnd
+{
+    None = 0,
+    Win = 1,
+    Draw = 2,
+}
+
+
+
 public class ChessBoard : MonoBehaviour
 {
     private const int tileCountX = 6;
@@ -80,6 +89,9 @@ public class ChessBoard : MonoBehaviour
 
     private void Update()
     {
+        if(Input.GetKeyDown(KeyCode.Escape))
+            Application.Quit();
+
         if (!currentCamera)
         {
             currentCamera = Camera.main;
@@ -101,7 +113,6 @@ public class ChessBoard : MonoBehaviour
             {
                 currentHover = hitPosition;
                 tiles[hitPosition.x, hitPosition.y].layer = LayerMask.NameToLayer("Hover");
-                Debug.Log(tiles[hitPosition.x, hitPosition.y] + " " + tiles[hitPosition.x, hitPosition.y].layer);
             }
 
             // If we were already hovering a tile, change the previous one
@@ -116,7 +127,6 @@ public class ChessBoard : MonoBehaviour
             {
                 if(chessPieces[hitPosition.x,hitPosition.y] != null)
                 {
-                    Debug.Log(isWhiteTurn + " " + currentTeam);
 
                     currentlyDragging = chessPieces[hitPosition.x, hitPosition.y];
                     if (preparationPhase)
@@ -246,6 +256,10 @@ public class ChessBoard : MonoBehaviour
 
         if (CheckForCheckMate())
             CheckMate(cp.team);
+
+        if(CheckForDraw())
+            CheckMate(2);
+
         return;
     }
 
@@ -565,7 +579,11 @@ public class ChessBoard : MonoBehaviour
 
         SpawnAllPieces();
         //Camera
-        preparationPhase = true;
+        if (!localGame)
+        {
+            preparationPhase = true;
+        }
+        PositionAllPieces();
         Server.instance.BroadCast(new NetStartGame());
     }
     public void OnMenuButton()
@@ -706,6 +724,42 @@ public class ChessBoard : MonoBehaviour
         return false;
     }
 
+    private bool CheckForDraw()
+    {
+        var lastMove = moveList[moveList.Count - 1];
+        int targetTeam = (chessPieces[lastMove[1].x, lastMove[1].y].team == 0) ? 1 : 0;
+
+        List<ChessPiece> defendingPieces = new List<ChessPiece>();
+        ChessPiece targetKing = null;
+        for (int x = 0; x < tileCountX; x++)
+            for (int y = 0; y < tileCountY; y++)
+                if (chessPieces[x, y] != null)
+                {
+                    if (chessPieces[x, y].team == targetTeam)
+                    {
+                        defendingPieces.Add(chessPieces[x, y]);
+                        if (chessPieces[x, y].type == ChessPieceType.King)
+                            targetKing = chessPieces[x, y];
+                    }
+                }
+        List<Vector2Int> currentAvailableMoves = new List<Vector2Int>();
+        for (int i = 0; i < defendingPieces.Count; i++)
+        {
+            var pieceMoves = defendingPieces[i].GetAvailableMoves(ref chessPieces, tileCountX, tileCountY);
+            SimulateMoveForSinglePiece(defendingPieces[i], ref pieceMoves, targetKing);
+            Debug.Log("NEW MOVES!");
+
+            for (int b = 0; b < pieceMoves.Count; b++)
+            {
+                Debug.Log(pieceMoves[b]);
+                currentAvailableMoves.Add(pieceMoves[b]);
+            }
+        }
+        if (currentAvailableMoves.Count == 0)
+            return true;
+
+        return false;
+    }
     //ŒŸõ
     private Vector2Int LookupTileIndex(GameObject hitInfo)
     {
@@ -882,7 +936,6 @@ public class ChessBoard : MonoBehaviour
     private void OnPreparationInputServer(NetMessage msg, NetworkConnection cnn)
     {
         NetPreparationInput pri = msg as NetPreparationInput;
-        Debug.Log("SERVER SENDS");
         Server.instance.BroadCast(pri);
     }
 
@@ -892,10 +945,8 @@ public class ChessBoard : MonoBehaviour
 
         playerPreparationOver[pri.teamID] = pri.prepOver == 1;
 
-        Debug.Log("INSIDE OF PREP");
         if (playerPreparationOver[0] && playerPreparationOver[1])
         {
-        Debug.Log("INSIDE OF Ready");
             
             availableMoves.Clear();
             preparationPhase = false;
